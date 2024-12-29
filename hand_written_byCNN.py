@@ -85,9 +85,6 @@ def main():
             results.append((lr, hidden_nodes, accuracy, error_count))
             print(f"Learning Rate: {lr}, Hidden Nodes: {hidden_nodes}, Accuracy: {accuracy}, Error Count: {error_count}")
 
-    print("\nExperiment Report:")
-    for result in results:
-        print(f"Learning Rate: {result[0]}, Hidden Nodes: {result[1]}, Accuracy: {result[2]}, Error Count: {result[3]}")
 
 
 if __name__ == "__main__":
