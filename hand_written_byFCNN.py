@@ -9,7 +9,7 @@ def load_mnist(path, kind='train'):
     """
     该函数用于加载 MNIST 数据集。
     :param path: 数据集所在的路径。
-    :param kind: 要加载的数据集类型，可选 'train' 或 'test'，默认为 'train'。
+    :param kind: 要加载的数据集类型
     :return: 图像数据和标签数据。
     """
     # 构造标签文件的路径
