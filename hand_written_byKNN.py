@@ -28,7 +28,7 @@ def main():
     X_train, y_train = load_mnist('MNIST', kind='train')
     X_test, y_test = load_mnist('MNIST', kind='t10k')
     
-    k_values = [1, 3, 5, 7, 9]  # 不同的 k 值
+    k_values = [1, 3, 5, 7]  # 不同的 k 值
     accuracy_list = []
     error_count_list = []
     
