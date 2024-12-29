@@ -44,7 +44,7 @@ def main():
     for lr in learning_rates:
         for hidden_size in hidden_layer_sizes:
             # 创建一个 MLPClassifier 模型，指定隐层节点数和初始学习率，最大迭代次数为 500
-            model = MLPClassifier(hidden_layer_sizes=hidden_size, learning_rate_init=lr, max_iter=500,random_state=5,alpha=0.0001,solver='sgd')
+            model = MLPClassifier(hidden_layer_sizes=hidden_size, learning_rate_init=lr, max_iter=1000,random_state=5,alpha=0.0001,solver='sgd')
             # 使用训练集数据训练模型
             model.fit(X_train, y_train)
             
