@@ -1,67 +1,55 @@
 import numpy as np
-import joblib
-import os
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+import gzip
+import struct
 
 
-def load_mnist(local_folder='mnist_data'):
-    data_file = os.path.join(local_folder, 'mnist_data.joblib')
-    X, y = joblib.load(data_file)
-    return X, y
-
-
-def split_dataset(X, y):
-    # 分割数据集为训练集和测试集
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=10000, random_state=42)
-    return X_train, X_test, y_train, y_test
-
-
-def train_knn(X_train, y_train, k):
-    # 训练 KNN 模型
-    knn = KNeighborsClassifier(n_neighbors=k)
-    knn.fit(X_train, y_train)
-    return knn
-
-
-def evaluate_knn(knn, X_test, y_test):
-    # 评估 KNN 模型
-    y_pred = knn.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    # 计算错误数量
-    error_count = (y_pred!= y_test).sum()
-    return accuracy, error_count
+def load_mnist(path, kind='train'):
+    """
+    从文件中加载 MNIST 数据集
+    :param path: 数据集文件的路径
+    :param kind: 数据集类型，可选 'train' 或 'test'
+    :return: 图像数据和标签数据的 numpy 数组
+    """
+    labels_path = f'{path}/{kind}-labels-idx1-ubyte.gz'
+    images_path = f'{path}/{kind}-images-idx3-ubyte.gz'
+    with gzip.open(labels_path, 'rb') as lbpath:
+        magic, n = struct.unpack('>II', lbpath.read(8))
+        labels = np.frombuffer(lbpath.read(), dtype=np.uint8)
+    with gzip.open(images_path, 'rb') as imgpath:
+        magic, num, rows, cols = struct.unpack('>IIII', imgpath.read(16))
+        images = np.frombuffer(imgpath.read(), dtype=np.uint8).reshape(len(labels), 784)
+    return images, labels
 
 
 def main():
-    X, y = load_mnist()
-    X_train, X_test, y_train, y_test = split_dataset(X, y)
-    k_values = [1, 3, 5, 7]
-    results = []
+    # 加载训练集和测试集
+    X_train, y_train = load_mnist('MNIST', kind='train')
+    X_test, y_test = load_mnist('MNIST', kind='t10k')
+    
+    k_values = [1, 3, 5, 7, 9]  # 不同的 k 值
+    accuracy_list = []
+    error_count_list = []
+    
     for k in k_values:
-        knn = train_knn(X_train, y_train, k)
-        accuracy, error_count = evaluate_knn(knn, X_test, y_test)
-        results.append((accuracy, error_count))
-        print(f"K = {k}, Accuracy: {accuracy}, Error Count: {error_count}")
-    # 绘制准确率结果
-    accuracies = [result[0] for result in results]
-    plt.figure(figsize=(10, 6))
-    plt.plot(k_values, accuracies, marker='o', linestyle='-', color='b')
-    plt.title('KNN Accuracy vs K value')
-    plt.xlabel('K value')
-    plt.ylabel('Accuracy')
-    plt.grid(True)
-    plt.show()
-    # 绘制错误数量结果
-    error_counts = [result[1] for result in results]
-    plt.figure(figsize=(10, 6))
-    plt.plot(k_values, error_counts, marker='o', linestyle='-', color='r')
-    plt.title('KNN Error Count vs K value')
-    plt.xlabel('K value')
-    plt.ylabel('Error Count')
-    plt.grid(True)
+        knn = KNeighborsClassifier(n_neighbors=k)
+        knn.fit(X_train, y_train)
+        y_pred = knn.predict(X_test)
+        accuracy = np.mean(y_pred == y_test)
+        error_count = len(y_test) - np.sum(y_pred == y_test)
+        accuracy_list.append(accuracy)
+        error_count_list.append(error_count)
+        print(f"k = {k}: Accuracy = {accuracy:.4f}, Error Count = {error_count}")
+    
+    # 绘制表格
+    fig, ax = plt.subplots()
+    cell_text = []
+    for i in range(len(k_values)):
+        cell_text.append([k_values[i], accuracy_list[i], error_count_list[i]])
+    ax.axis('tight')
+    ax.axis('off')
+    ax.table(cellText=cell_text, colLabels=['k value', 'Accuracy', 'Error Count'], loc='center')
     plt.show()
 
 
