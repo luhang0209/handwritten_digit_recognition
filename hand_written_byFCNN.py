@@ -67,9 +67,7 @@ def main():
             # 打印本次实验结果
             print(f"Learning Rate: {lr}, Hidden Layer Size: {hidden_size}, Accuracy: {accuracy}, Error Count: {error_count}")
     
-    print("\n试验报告:")
     for result in results:
-        # 打印最终的实验报告
         print(f"学习率: {result['learning_rate']}, 隐层节点数: {result['hidden_layer_size']}, 准确率: {result['accuracy']}, 错误数量: {result['error_count']}")
 
 
